@@ -1,7 +1,9 @@
 name: Load Test PoC
 on:
-  push:
-    branches:
+  pull_request:
+    branches: [main]
+  # push:
+  #   branches:
 
 jobs:
   deploy-and-test:
