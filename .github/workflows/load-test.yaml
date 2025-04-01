@@ -27,14 +27,13 @@ jobs:
       # Build and push Docker image
       - name: Build Docker Image
         run: |
-          docker build -t dummy-app:latest .
-          minikube image load dummy-app:latest # Load image into Minikube
+          docker build -t myapp:latest .
 
       # Deploy to Minikube
       - name: Deploy to Kubernetes
         run: |
           kubectl apply -f deployment.yaml
-          kubectl rollout status deployment/dummy-app # Wait for deployment to be ready
+          kubectl rollout status deployment/myapp # Wait for deployment to be ready
 
       # Verify the pod is running
       - name: Check Deployment
