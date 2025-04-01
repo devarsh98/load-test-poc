@@ -41,3 +41,41 @@ jobs:
         run: |
           kubectl get pods
           kubectl get svc
+
+      # Install k6
+      - name: Install k6
+        run: |
+          curl -LO https://github.com/grafana/k6/releases/download/v0.58.0/k6-v0.58.0-linux-amd64.tar.gz
+          tar -xzf k6-v0.58.0-linux-amd64.tar.gz
+          sudo mv k6-v0.58.0-linux-amd64/k6 /usr/local/bin/
+          k6 version
+
+      # Expose the service via port-forwarding
+      - name: Port Forward Service
+        run: |
+          kubectl port-forward service/myapp-svc 8080:80 &
+          sleep 5
+
+      # Run load test with k6
+      - name: Run Load Test
+        run: |
+          k6 run load-test.js > load-test-results.txt
+          cat load-test-results.txt
+
+            # Post results to PR
+      - name: Post Load Test Results to PR
+        if: always()
+        run: |
+          # Extract avg latency (http_req_duration, in ms, clean up avg= and ms)
+          AVG_LATENCY=$(grep "http_req_duration" load-test-results.txt | awk '{print $2}' | sed 's/avg=//;s/ms//')
+          # Extract failure rate (http_req_failed) and compute success rate
+          FAILURE_RATE=$(grep "http_req_failed" load-test-results.txt | awk '{print $2}' | cut -d'%' -f1)
+          SUCCESS_RATE=$(echo "100 - $FAILURE_RATE" | bc)
+          # Format comment
+          COMMENT="Load test results:\n- Avg latency: ${AVG_LATENCY}ms\n- Success rate: ${SUCCESS_RATE}%"
+          echo "$COMMENT" # Debug output
+          curl -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -d "{\"body\":\"$COMMENT\"}" \
+            "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \
+            || echo "curl failed with exit code: $?"
