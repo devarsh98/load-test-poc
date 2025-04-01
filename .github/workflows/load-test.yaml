@@ -1,8 +1,8 @@
 name: Load Test PoC
 on:
-  # pull_request:
-  #   branches: [main]
-  
+  push:
+    branches:
+
 jobs:
   deploy-and-test:
     runs-on: ubuntu-latest
