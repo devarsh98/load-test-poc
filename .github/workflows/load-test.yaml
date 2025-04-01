@@ -1,0 +1,43 @@
+name: Load Test PoC
+on:
+  # pull_request:
+  #   branches: [main]
+  
+jobs:
+  deploy-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the PR code
+      - uses: actions/checkout@v3
+
+      # Set up Minikube in the CI environment
+      - name: Start Minikube
+        run: |
+          curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+          sudo install minikube-linux-amd64 /usr/local/bin/minikube
+          minikube start --driver=docker
+
+      # Install kubectl
+      - name: Install kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+
+      # Build and push Docker image
+      - name: Build Docker Image
+        run: |
+          docker build -t dummy-app:latest .
+          minikube image load dummy-app:latest # Load image into Minikube
+
+      # Deploy to Minikube
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl apply -f deployment.yaml
+          kubectl rollout status deployment/dummy-app # Wait for deployment to be ready
+
+      # Verify the pod is running
+      - name: Check Deployment
+        run: |
+          kubectl get pods
+          kubectl get svc
