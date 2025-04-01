@@ -77,6 +77,7 @@ jobs:
           COMMENT="Load test results:\n- Avg latency: ${AVG_LATENCY}ms\n- Success rate: ${SUCCESS_RATE}%"
           echo "$COMMENT" # Debug output
           curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.MY_GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github+json" \
             -d "{\"body\":\"$COMMENT\"}" \
             "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \
