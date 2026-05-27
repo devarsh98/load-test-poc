@@ -45,7 +45,7 @@ export let options = {
 
 Local run against the Node.js app — 100 virtual users, 40 seconds, 3 stages:
 
-![k6 load test results](./docs/k6-results.png)
+<img width="1451" height="839" alt="k6-results" src="https://github.com/user-attachments/assets/f080e909-ff00-4992-bd21-1a53d1e66c14" />
 
 | Metric | Result | Threshold | Status |
 |---|---|---|---|
