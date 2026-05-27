@@ -12,3 +12,8 @@ export let options = {
     http_req_failed: ['rate<0.01'],
   },
 };
+
+export default function () {
+  http.get('http://127.0.0.1:3000/hello');
+  sleep(0.1);
+}
