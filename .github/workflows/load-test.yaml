@@ -53,8 +53,9 @@ jobs:
       # Expose the service via port-forwarding
       - name: Port Forward Service
         run: |
-          kubectl port-forward service/myapp-svc 8080:80 &
-          sleep 5
+          kubectl port-forward service/myapp-svc 3000:80 &
+          sleep 10
+          curl --retry 5 --retry-delay 2 --retry-connrefused http://127.0.0.1:8080/hello
 
       # Run load test with k6
       - name: Run Load Test
